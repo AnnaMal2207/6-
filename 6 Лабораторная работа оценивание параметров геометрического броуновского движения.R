@@ -4,8 +4,8 @@ set.seed(123) # для воспроизводимости результатов
 N = 1000 # число шагов
 delta = 0.01 # шаг по времени
 S0 = 100 # начальное значение S
-a = 0.5 # истинное значение параметра a
-sigma = 0.8 # истинное значение параметра sigma
+a = 0.5 
+sigma = 0.8 
 
 t = seq(0, N*delta, delta)#вектор моментов наблюдений
 length(t)
@@ -14,7 +14,7 @@ S[1] = S0
 B = numeric(length(t))
 B[1] = 0
 
-for(k in 2:(N+1)) {B[k] = B[k-1] + rnorm(1,0,0.01) 
+for(k in 2:(N+1)) {B[k] = B[k-1] + rnorm(1, mean=0, sd=sigma) 
                    S[k] = S[1]*exp((a-sigma^2/2)*(k)*delta+sigma*B[k])
                    }
 
@@ -31,12 +31,10 @@ loglik = function(theta, data) {a = theta[1]
                                  for (i in 2:(n+1)) { res[i-1] = log(S[i]) - log(S[i-1]) - (a - sigma2/2) * delta}
                                  loglik = -n/2*log(2*pi) - n/2*log(sigma2*delta) - 1/(2*sigma2*delta)*sum(res^2)
                                  return(-loglik)}
-
 # оценка параметров методом максимального правдоподобия
 start = c(0.01, 0.01)
 result = optim(start, loglik, data=S, method="L-BFGS-B", lower=c(0, 0), upper=c(Inf, Inf))
 
-# вывод результатов
 cat("Оценка параметра a:", result$par[1], "\n")
 cat("Оценка параметра sigma^2:", result$par[2], "\n")
 
